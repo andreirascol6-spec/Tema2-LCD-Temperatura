@@ -25,6 +25,7 @@ void setup() {
   ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
 
   interrupts();
+  actualizeazaAfisaj();
 }
 
 ISR(TIMER1_COMPA_vect) {
@@ -35,7 +36,9 @@ ISR(TIMER1_COMPA_vect) {
     if (minute >= 60) {
       minute = 0;
       ore++;
-      if (ore >= 24) ore = 0;
+      if (ore >= 24) {
+        ore = 0;
+      }
     }
   }
   flagSecunda = true;
@@ -47,15 +50,28 @@ uint16_t citesteADC() {
   return ADC;
 }
 
-void actualizeazaCeas() {
+void actualizeazaAfisaj() {
+  uint16_t adcVal = citesteADC();
+  float tensiune_mV = (adcVal * 5000.0) / 1024.0;
+  int temp = (int)(tensiune_mV / 10.0);
+
+  lcd.setCursor(0, 0);
+  lcd.print("Temp = ");
+  lcd.print(temp);
+  lcd.print((char)223);
+  lcd.print("C  ");
+
   lcd.setCursor(0, 1);
   lcd.print("Ora ");
+  
   if (ore < 10) lcd.print("0");
   lcd.print(ore);
   lcd.print(":");
+  
   if (minute < 10) lcd.print("0");
   lcd.print(minute);
   lcd.print(":");
+  
   if (secunde < 10) lcd.print("0");
   lcd.print(secunde);
 }
@@ -63,6 +79,6 @@ void actualizeazaCeas() {
 void loop() {
   if (flagSecunda) {
     flagSecunda = false;
-    actualizeazaCeas();
+    actualizeazaAfisaj();
   }
 }
