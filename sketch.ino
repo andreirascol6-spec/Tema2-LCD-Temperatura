@@ -21,6 +21,9 @@ void setup() {
   TCCR1B |= (1 << CS12) | (1 << CS10);
   TIMSK1 |= (1 << OCIE1A);
 
+  ADMUX = (1 << REFS0);
+  ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
+
   interrupts();
 }
 
@@ -36,6 +39,12 @@ ISR(TIMER1_COMPA_vect) {
     }
   }
   flagSecunda = true;
+}
+
+uint16_t citesteADC() {
+  ADCSRA |= (1 << ADSC);
+  while (ADCSRA & (1 << ADSC));
+  return ADC;
 }
 
 void actualizeazaCeas() {
